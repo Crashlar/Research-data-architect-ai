@@ -1,10 +1,15 @@
 import sqlite3
 import os
 
-connection = sqlite3.connect("company.db")
+# Get the path to the current script's folder 
+current_folder = os.path.dirname(__file__) 
+# Build the full path to the database file 
+db_path = os.path.join(current_folder, "company.db")
+
+connection = sqlite3.connect(db_path)
 cursor = connection.cursor()
 
-if not os.path.exists("company.db"):
+if not os.path.exists(db_path):
     # Create tables
     schema = """
     CREATE TABLE IF NOT EXISTS employees (

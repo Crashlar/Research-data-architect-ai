@@ -2,3 +2,7 @@
 __pycache__
 *.db
 *.bin
+chatbot.db-wal
+chatbot.db-shm
+company.db-shm
+company.db-wal
