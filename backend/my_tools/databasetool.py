@@ -4,6 +4,7 @@ from langchain_core.output_parsers import StrOutputParser
 import sqlite3
 from dotenv import load_dotenv
 import re
+import os 
 load_dotenv()
 
 sql_template = """
@@ -62,11 +63,38 @@ def clean_sql_query(query: str) -> str:
     
     return query
 
+
+from pathlib import Path 
+# Get the path to the current script (databasetool.py) 
+current_file = Path(__file__) 
+# Navigate to the root directory (two levels up) 
+project_root = current_file.parents[2] 
+# Construct the path to company.db 
+db_path = project_root / "database" / "company.db"
+
 @tool
-def sql_to_text_output(question :  str , database : str  = "company.db"  ):
+def sql_to_text_output(question :  str , database : str  = str(db_path)  ):
     """
-    Dynamically converts a natural language question into SQL,
-    executes it against the SQLite database, and explains the results in English.
+    Convert a natural language question into an SQL query, run it on the company.db SQLite database,
+    and return both the raw query results and a human-readable explanation.
+
+    Args:
+        question (str): A natural language question (e.g., "List all employees in the Sales department").
+        database (str, optional): Path to the SQLite database file. Defaults to "company.db".
+
+    Returns:
+        dict: {
+            "query": str,          # The generated SQL query
+            "results": list,       # Raw results from executing the query
+            "explanation": str     # Human-readable explanation of the results
+        }
+
+    Workflow:
+        1. Generate an SQL query from the natural language question using an LLM.
+        2. Clean the SQL query to ensure proper syntax.
+        3. Execute the query against company.db.
+        4. Fetch results from the database.
+        5. Generate an English explanation of the query and results.
     """
     # Initialize model + parser
     model =  ChatGoogleGenerativeAI(
